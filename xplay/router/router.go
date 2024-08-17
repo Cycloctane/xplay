@@ -1,0 +1,40 @@
+package router
+
+import (
+	"net/http"
+	"octane.top/xplay/mediahandler"
+	"octane.top/xplay/xspf"
+)
+
+const (
+	xspfPath      = "/play.xspf"
+	mediaBasePath = "/media/"
+)
+
+func httpHandler(w http.ResponseWriter, r *http.Request) {
+	playList, err := mediahandler.GetMedia(mediaBasePath)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	buffered, err := xspf.BufferedGenerate(playList)
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+	w.Header().Set("Content-Type", xspf.ContentType)
+	w.WriteHeader(http.StatusOK)
+	_, err = buffered.WriteTo(w)
+	if err != nil {
+		return
+	}
+}
+
+func InitRouter() *http.ServeMux {
+	httpFS := mediahandler.MediaFS{Fs: http.Dir(mediahandler.MediaDir)}
+	router := http.NewServeMux()
+	router.HandleFunc(xspfPath, httpHandler)
+	router.Handle(mediaBasePath, http.StripPrefix(mediaBasePath, http.FileServer(httpFS)))
+	router.Handle("/", http.RedirectHandler(xspfPath, http.StatusTemporaryRedirect))
+	return router
+}
