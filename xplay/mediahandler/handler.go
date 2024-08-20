@@ -2,6 +2,7 @@ package mediahandler
 
 import (
 	"bufio"
+	"fmt"
 	"net/url"
 	"octane.top/xplay/xspf"
 	"os"
@@ -10,6 +11,29 @@ import (
 )
 
 var MediaDir string
+
+var taggedExt = [...]string{".mp3", ".flac", ".ogg", "mp4"}
+
+func isTaggedExt(ext string) bool {
+	for _, v := range taggedExt {
+		if ext == v {
+			return true
+		}
+	}
+	return false
+}
+
+func getTaggedTrack(path string, track *xspf.Track) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+	defer f.Close()
+	if err := ReadTag(f, track); err != nil {
+		return err
+	}
+	return nil
+}
 
 func GetMedia(baseURL string) (*xspf.PlayList, error) {
 	files, err := os.ReadDir(MediaDir)
@@ -26,10 +50,19 @@ func GetMedia(baseURL string) (*xspf.PlayList, error) {
 			continue
 		}
 		location, _ := url.JoinPath(baseURL, url.PathEscape(v.Name()))
-		playList.TrackList.Tracks = append(playList.TrackList.Tracks, xspf.Track{
+		ext := filepath.Ext(v.Name())
+		track := &xspf.Track{
 			Location: location,
-			Title:    strings.TrimSuffix(v.Name(), filepath.Ext(v.Name())),
-		})
+			Title:    strings.TrimSuffix(v.Name(), ext),
+		}
+		if isTaggedExt(ext) {
+			path := filepath.Join(MediaDir, v.Name())
+			if err := getTaggedTrack(path, track); err != nil {
+				fmt.Printf("cannot parse %s: %s\n", path, err.Error())
+				continue
+			}
+		}
+		playList.TrackList.Tracks = append(playList.TrackList.Tracks, *track)
 	}
 	return playList, nil
 }
