@@ -2,6 +2,7 @@ package mediahandler
 
 import (
 	"github.com/dhowden/tag"
+	"io"
 	"octane.top/xplay/xspf"
 	"os"
 	"strconv"
@@ -25,5 +26,16 @@ func ReadTag(f *os.File, track *xspf.Track) error {
 		addTag(&track.TrackNum, strconv.Itoa(trackNum))
 	}
 	addTag(&track.Annotation, metadata.Comment())
+	if metadata.Picture() != nil {
+		addTag(&track.ImageExt, metadata.Picture().Ext)
+	}
 	return nil
+}
+
+func ReadImg(f io.ReadSeeker) (*tag.Picture, error) {
+	metadata, err := tag.ReadFrom(f)
+	if err != nil {
+		return nil, err
+	}
+	return metadata.Picture(), nil
 }
