@@ -4,7 +4,13 @@ A simple media server that reads a directory, generates xspf playlist as index a
 
 Currently supported file formats: mp3, flac, ogg, mp4, mkv
 
-![This program produces valid XSPF playlist files.](img/valid-xspf.png)
+[![This program produces valid XSPF playlist files.](img/valid-xspf.png)](https://validator.xspf.org/referrer/)
+
+This program:
+
+- Follows symlinks
+- Excludes files starting with a period (hidden files in linux)
+- Ignores files in subdirectories
 
 ## Usage
 

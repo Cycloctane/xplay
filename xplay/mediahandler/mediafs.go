@@ -1,6 +1,7 @@
 package mediahandler
 
 import (
+	"io/fs"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -8,18 +9,12 @@ import (
 
 var supportedExt = [...]string{".mp3", ".flac", ".ogg", ".mp4", ".mkv"}
 
-type fileInfoOrDirEntry interface {
-	Name() string
-	IsDir() bool
-}
-
-func validateFileType(f fileInfoOrDirEntry) bool {
-	ext := filepath.Ext(f.Name())
-	if f.IsDir() {
+func validateFileType(f fs.DirEntry) bool {
+	if f.IsDir() || f.Name()[0] == '.' {
 		return false
 	}
 	for _, v := range supportedExt {
-		if ext == v {
+		if filepath.Ext(f.Name()) == v {
 			return true
 		}
 	}
@@ -35,11 +30,14 @@ func (mfs MediaFS) Open(name string) (http.File, error) {
 	if err != nil {
 		return nil, err
 	}
+	if filepath.Dir(name) != "." {
+		return nil, os.ErrNotExist
+	}
 	info, err := f.Stat()
 	if err != nil {
 		return nil, err
 	}
-	if !validateFileType(info) {
+	if !validateFileType(fs.FileInfoToDirEntry(info)) {
 		return nil, os.ErrNotExist
 	}
 	return f, nil
