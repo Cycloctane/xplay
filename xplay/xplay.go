@@ -5,10 +5,11 @@ import (
 	"fmt"
 	"net"
 	"net/http"
-	"octane.top/xplay/mediahandler"
-	"octane.top/xplay/router"
 	"os"
 	"strconv"
+
+	"octane.top/xplay/mediahandler"
+	"octane.top/xplay/router"
 )
 
 func validateDir(path string) {

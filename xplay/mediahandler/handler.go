@@ -3,10 +3,11 @@ package mediahandler
 import (
 	"bufio"
 	"net/url"
-	"octane.top/xplay/xspf"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"octane.top/xplay/xspf"
 )
 
 var MediaDir string
