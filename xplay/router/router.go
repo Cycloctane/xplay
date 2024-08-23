@@ -12,7 +12,7 @@ const (
 	mediaBasePath = "/media/"
 )
 
-func httpHandler(w http.ResponseWriter, r *http.Request) {
+func httpHandler(w http.ResponseWriter, _ *http.Request) {
 	playList, err := mediahandler.GetMedia(mediaBasePath)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
@@ -25,17 +25,17 @@ func httpHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", xspf.ContentType)
 	w.WriteHeader(http.StatusOK)
-	_, err = buffered.WriteTo(w)
-	if err != nil {
+	if _, err = buffered.WriteTo(w); err != nil {
 		return
 	}
 }
 
 func InitRouter() *http.ServeMux {
-	httpFS := mediahandler.MediaFS{Fs: http.Dir(mediahandler.MediaDir)}
+	httpFS := &mediahandler.MediaFS{Fs: http.Dir(mediahandler.MediaDir)}
 	router := http.NewServeMux()
 	router.HandleFunc(xspfPath, httpHandler)
 	router.Handle(mediaBasePath, http.StripPrefix(mediaBasePath, http.FileServer(httpFS)))
+	router.Handle("/favicon.ico", http.NotFoundHandler())
 	router.Handle("/", http.RedirectHandler(xspfPath, http.StatusTemporaryRedirect))
 	return router
 }

@@ -25,13 +25,13 @@ type MediaFS struct {
 	Fs http.FileSystem
 }
 
-func (mfs MediaFS) Open(name string) (http.File, error) {
+func (mfs *MediaFS) Open(name string) (http.File, error) {
+	if filepath.Dir(name) != string(os.PathSeparator) {
+		return nil, os.ErrNotExist
+	}
 	f, err := mfs.Fs.Open(name)
 	if err != nil {
 		return nil, err
-	}
-	if filepath.Dir(name) != "." {
-		return nil, os.ErrNotExist
 	}
 	info, err := f.Stat()
 	if err != nil {
