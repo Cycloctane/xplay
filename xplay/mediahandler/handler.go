@@ -2,6 +2,7 @@ package mediahandler
 
 import (
 	"bufio"
+	"io/fs"
 	"net/url"
 	"os"
 	"path/filepath"
@@ -13,24 +14,28 @@ import (
 var MediaDir string
 
 func GetMedia(baseURL string) (*xspf.PlayList, error) {
-	files, err := os.ReadDir(MediaDir)
-	if err != nil {
-		return nil, err
-	}
 	playList := &xspf.PlayList{
 		Version: "1", XMLns: "http://xspf.org/ns/0/",
 		Creator: "xplay",
 	}
-	playList.TrackList.Tracks = make([]xspf.Track, 0, len(files))
-	for _, v := range files {
-		if !validateFileType(v) {
-			continue
+	if err := fs.WalkDir(os.DirFS(MediaDir), ".", func(path string, d fs.DirEntry, err error) error {
+		if err != nil || !validateFileType(d) {
+			return nil
 		}
-		location, _ := url.JoinPath(baseURL, url.PathEscape(v.Name()))
+		if !Recursive && filepath.Dir(path) != "." {
+			return nil
+		}
+		location, err := url.JoinPath(baseURL, path)
+		if err != nil {
+			return err
+		}
 		playList.TrackList.Tracks = append(playList.TrackList.Tracks, xspf.Track{
 			Location: location,
-			Title:    strings.TrimSuffix(v.Name(), filepath.Ext(v.Name())),
+			Title:    strings.TrimSuffix(d.Name(), filepath.Ext(d.Name())),
 		})
+		return nil
+	}); err != nil {
+		return nil, err
 	}
 	return playList, nil
 }

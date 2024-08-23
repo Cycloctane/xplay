@@ -9,6 +9,8 @@ import (
 
 var supportedExt = [...]string{".mp3", ".flac", ".ogg", ".mp4", ".mkv"}
 
+var Recursive bool
+
 func validateFileType(f fs.DirEntry) bool {
 	if f.IsDir() || f.Name()[0] == '.' {
 		return false
@@ -26,7 +28,7 @@ type MediaFS struct {
 }
 
 func (mfs *MediaFS) Open(name string) (http.File, error) {
-	if filepath.Dir(name) != string(os.PathSeparator) {
+	if !Recursive && filepath.Dir(name) != string(os.PathSeparator) {
 		return nil, os.ErrNotExist
 	}
 	f, err := mfs.Fs.Open(name)
