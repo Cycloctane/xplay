@@ -1,8 +1,8 @@
 # xplay
 
-A simple media server that searches media files from a directory, generates xspf playlist as index and serves audio/video over http.
+A simple media server that searches multimedia files from a directory, parses their metadata, generates xspf playlist as index and serves audio/video over http.
 
-Currently supported file formats: mp3, flac, ogg, mp4, mkv
+Supported file formats: mp3, flac, ogg, mp4, mkv. Metadata parsing currently does not support mkv.
 
 [![This program produces valid XSPF playlist files.](img/valid-xspf.png)](https://validator.xspf.org/referrer/)
 

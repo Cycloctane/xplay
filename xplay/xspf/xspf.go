@@ -32,6 +32,8 @@ type Track struct {
 	Album      string   `xml:"album,omitempty"`
 	TrackNum   string   `xml:"trackNum,omitempty"`
 	Duration   string   `xml:"duration,omitempty"`
+	ImageExt   string   `xml:"-"`
+	ImageURI   string   `xml:"image,omitempty"`
 	Annotation string   `xml:"annotation,omitempty"`
 }
 

@@ -10,10 +10,11 @@ import (
 const (
 	xspfPath      = "/play.xspf"
 	mediaBasePath = "/media/"
+	imageBasePath = "/img/"
 )
 
 func httpHandler(w http.ResponseWriter, _ *http.Request) {
-	playList, err := mediahandler.GetMedia(mediaBasePath)
+	playList, err := mediahandler.GetMedia(mediaBasePath, imageBasePath)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return
@@ -35,6 +36,7 @@ func InitRouter() *http.ServeMux {
 	router := http.NewServeMux()
 	router.HandleFunc(xspfPath, httpHandler)
 	router.Handle(mediaBasePath, http.StripPrefix(mediaBasePath, http.FileServer(httpFS)))
+	router.Handle(imageBasePath, http.StripPrefix(imageBasePath, http.FileServer(&mediahandler.ImageFS{Mfs: httpFS})))
 	router.Handle("/favicon.ico", http.NotFoundHandler())
 	router.Handle("/", http.RedirectHandler(xspfPath, http.StatusTemporaryRedirect))
 	return router
