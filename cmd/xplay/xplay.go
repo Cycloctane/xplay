@@ -27,7 +27,8 @@ func main() {
 	var listenAddr string
 	var listenPort int
 	flag.StringVar(&mediahandler.MediaDir, "d", ".", "served directory")
-	flag.BoolVar(&mediahandler.Recursive, "r", false, "read directory recursively")
+	flag.BoolVar(&mediahandler.NoTag, "no-tag", false, "do not read media metadata")
+	flag.BoolVar(&mediahandler.NoRecursive, "no-recursive", false, "read directory recursively")
 	flag.BoolVar(&output, "w", false, "write xspf to stdout and exit")
 	flag.StringVar(&listenAddr, "b", "0.0.0.0", "http server bind address")
 	flag.IntVar(&listenPort, "p", 8080, "http server bind port")
