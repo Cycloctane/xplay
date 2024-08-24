@@ -4,7 +4,7 @@ A simple media server that searches multimedia files from a directory, parses th
 
 Supported file formats: mp3, flac, ogg, mp4, mkv. Metadata parsing currently does not support mkv.
 
-[![This program produces valid XSPF playlist files.](img/valid-xspf.png)](https://validator.xspf.org/referrer/)
+[![This program produces valid XSPF playlist files.](assets/valid-xspf.png)](https://validator.xspf.org/referrer/)
 
 This program:
 

@@ -8,8 +8,8 @@ import (
 	"os"
 	"strconv"
 
-	"octane.top/xplay/mediahandler"
-	"octane.top/xplay/router"
+	"github.com/Cycloctane/xplay/internal/mediahandler"
+	"github.com/Cycloctane/xplay/internal/router"
 )
 
 func validateDir(path string) {

@@ -1,11 +1,12 @@
 package mediahandler
 
 import (
-	"github.com/dhowden/tag"
 	"io"
-	"octane.top/xplay/xspf"
 	"os"
 	"strconv"
+
+	"github.com/Cycloctane/xplay/pkg/xspf"
+	"github.com/dhowden/tag"
 )
 
 func addTag(t *string, m string) {

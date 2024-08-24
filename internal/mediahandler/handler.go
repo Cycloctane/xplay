@@ -9,7 +9,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"octane.top/xplay/xspf"
+	"github.com/Cycloctane/xplay/pkg/xspf"
 )
 
 const fileBaseURL = "file:///"

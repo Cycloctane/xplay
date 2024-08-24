@@ -3,8 +3,8 @@ package router
 import (
 	"net/http"
 
-	"octane.top/xplay/mediahandler"
-	"octane.top/xplay/xspf"
+	"github.com/Cycloctane/xplay/internal/mediahandler"
+	"github.com/Cycloctane/xplay/pkg/xspf"
 )
 
 const (

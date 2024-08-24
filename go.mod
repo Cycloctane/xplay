@@ -1,4 +1,4 @@
-module octane.top/xplay
+module github.com/Cycloctane/xplay
 
 go 1.22
 
