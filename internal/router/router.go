@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"net/url"
 
 	"github.com/Cycloctane/xplay/internal/mediahandler"
 	"github.com/Cycloctane/xplay/pkg/xspf"
@@ -14,7 +15,9 @@ const (
 )
 
 func httpHandler(w http.ResponseWriter, _ *http.Request) {
-	playList, err := mediahandler.GetMedia(mediaBasePath, imageBasePath)
+	mediaBaseUrl, _ := url.Parse(mediaBasePath)
+	imageBaseUrl, _ := url.Parse(imageBasePath)
+	playList, err := mediahandler.GetMedia(mediaBaseUrl, imageBaseUrl)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		return

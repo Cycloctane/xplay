@@ -37,15 +37,8 @@ func getTaggedTrack(path string, track *xspf.Track) error {
 	return nil
 }
 
-func GetMedia(MediaBase string, ImageBase string) (*xspf.PlayList, error) {
-	MediaBaseURL, err := url.Parse(MediaBase)
-	if err != nil {
-		return nil, err
-	}
-	playList := &xspf.PlayList{
-		Version: "1", XMLns: "http://xspf.org/ns/0/",
-		Creator: "xplay",
-	}
+func GetMedia(MediaBaseURL *url.URL, ImageBaseURL *url.URL) (*xspf.PlayList, error) {
+	playList := &xspf.PlayList{Creator: "xplay", Title: "xplay"}
 	if err := fs.WalkDir(os.DirFS(MediaDir), ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil || !validateFileType(d) {
 			return nil
@@ -66,7 +59,7 @@ func GetMedia(MediaBase string, ImageBase string) (*xspf.PlayList, error) {
 				return nil
 			}
 			if MediaBaseURL.Scheme != "file" && track.ImageExt != "" {
-				track.ImageURI, _ = url.JoinPath(ImageBase, path)
+				track.ImageURI = ImageBaseURL.JoinPath(path).String()
 			}
 		}
 		playList.TrackList.Tracks = append(playList.TrackList.Tracks, *track)
@@ -78,16 +71,14 @@ func GetMedia(MediaBase string, ImageBase string) (*xspf.PlayList, error) {
 }
 
 func WriteToStdout() error {
-	baseURL, err := url.Parse(fileBaseURL)
-	if err != nil {
-		return err
-	}
+	baseUrl, _ := url.Parse(fileBaseURL)
+	EmptyUrl, _ := url.Parse("")
 	absPath, err := filepath.Abs(MediaDir)
 	if err != nil {
 		return err
 	}
-	fileUrl := baseURL.JoinPath(filepath.ToSlash(absPath))
-	playList, err := GetMedia(fileUrl.String(), "")
+	fileUrl := baseUrl.JoinPath(filepath.ToSlash(absPath))
+	playList, err := GetMedia(fileUrl, EmptyUrl)
 	if err != nil {
 		return err
 	}

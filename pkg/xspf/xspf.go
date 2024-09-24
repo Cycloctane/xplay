@@ -6,44 +6,52 @@ import (
 	"io"
 )
 
-const ContentType = "application/xspf+xml"
+const (
+	XmlVersion  = "1"
+	Xmlns       = "http://xspf.org/ns/0/"
+	ContentType = "application/xspf+xml"
+)
 
 type PlayList struct {
-	XMLName    xml.Name `xml:"playlist"`
-	Version    string   `xml:"version,attr"`
-	XMLns      string   `xml:"xmlns,attr"`
-	Title      string   `xml:"title,omitempty"`
-	Creator    string   `xml:"creator,omitempty"`
-	Date       string   `xml:"date,omitempty"`
-	Annotation string   `xml:"annotation,omitempty"`
-	TrackList  TrackList
-}
-
-type TrackList struct {
-	XMLName xml.Name `xml:"trackList"`
-	Tracks  []Track
+	Title      string `xml:"title,omitempty"`
+	Creator    string `xml:"creator,omitempty"`
+	Date       string `xml:"date,omitempty"`
+	Annotation string `xml:"annotation,omitempty"`
+	TrackList  struct {
+		Tracks []Track `xml:"track"`
+	} `xml:"trackList"`
 }
 
 type Track struct {
-	XMLName    xml.Name `xml:"track"`
-	Location   string   `xml:"location"`
-	Title      string   `xml:"title,omitempty"`
-	Creator    string   `xml:"creator,omitempty"`
-	Album      string   `xml:"album,omitempty"`
-	TrackNum   string   `xml:"trackNum,omitempty"`
-	Duration   string   `xml:"duration,omitempty"`
-	ImageExt   string   `xml:"-"`
-	ImageURI   string   `xml:"image,omitempty"`
-	Annotation string   `xml:"annotation,omitempty"`
+	Location   string `xml:"location"`
+	Title      string `xml:"title,omitempty"`
+	Creator    string `xml:"creator,omitempty"`
+	Album      string `xml:"album,omitempty"`
+	TrackNum   string `xml:"trackNum,omitempty"`
+	Duration   string `xml:"duration,omitempty"`
+	ImageExt   string `xml:"-"`
+	ImageURI   string `xml:"image,omitempty"`
+	Annotation string `xml:"annotation,omitempty"`
+}
+
+func EncodeXspf(w io.Writer, list *PlayList) error {
+	encoder := xml.NewEncoder(w)
+	encoder.Indent("", "  ")
+	head := xml.StartElement{
+		Name: xml.Name{Local: "playlist"},
+		Attr: []xml.Attr{
+			{Name: xml.Name{Local: "version"}, Value: XmlVersion},
+			{Name: xml.Name{Local: "xmlns"}, Value: Xmlns},
+		},
+	}
+	return encoder.EncodeElement(list, head)
 }
 
 func Generate(w io.Writer, list *PlayList) error {
 	if _, err := w.Write([]byte(xml.Header)); err != nil {
 		return err
 	}
-	encoder := xml.NewEncoder(w)
-	encoder.Indent("", "  ")
-	if err := encoder.Encode(list); err != nil {
+	if err := EncodeXspf(w, list); err != nil {
 		return err
 	}
 	return nil
@@ -51,9 +59,7 @@ func Generate(w io.Writer, list *PlayList) error {
 
 func BufferedGenerate(list *PlayList) (*bytes.Buffer, error) {
 	buf := bytes.NewBuffer([]byte(xml.Header))
-	encoder := xml.NewEncoder(buf)
-	encoder.Indent("", "  ")
-	if err := encoder.Encode(list); err != nil {
+	if err := EncodeXspf(buf, list); err != nil {
 		return nil, err
 	}
 	return buf, nil
