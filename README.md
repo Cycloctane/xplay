@@ -1,6 +1,6 @@
 # xplay
 
-A simple media server that searches multimedia files from a directory, parses their metadata, generates xspf playlist as index and serves audio/video over http.
+A simple media server that searches multimedia files from a directory, parses their metadata, generates xspf playlist as index and serves audio/video over http/https.
 
 Supported file formats: mp3, flac, ogg, mp4, mkv. Metadata parsing currently does not support mkv.
 
@@ -28,10 +28,24 @@ Use `-w` to generate and save xspf to file and exit. `-b` and `-p` options will 
 
 Metadata parsing can become slow when handling a large number of multimedia files. Use `--no-tag` option to disable metadata/tag parsing if you do not need metadata in xspf playlists.
 
+To secure the media server, activate https with `--cert` `--key` and set up http basic authentication with `--password`. Default username "xplay" can be changed via `--username`:
+
+```bash
+./xplay -b $bind_ipaddr -p $bind_port -d ./music\
+    --username $username --password $password\
+    --cert $cert_path --key $certkey_path
+```
+
 ## Client
 
 Media players with http and xspf support (like VLC) can be used as clients.
 
 ```bash
 vlc http://$ip:$port/play.xspf
+```
+
+With https and http basic auth:
+
+```bash
+vlc https://$username:$password@$ip:$port/play.xspf
 ```

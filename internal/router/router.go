@@ -1,6 +1,7 @@
 package router
 
 import (
+	"log"
 	"net/http"
 	"net/url"
 
@@ -43,4 +44,12 @@ func InitRouter() *http.ServeMux {
 	router.Handle("/favicon.ico", http.NotFoundHandler())
 	router.Handle("/", http.RedirectHandler(xspfPath, http.StatusTemporaryRedirect))
 	return router
+}
+
+func InitLogRouter(logger *log.Logger) http.Handler {
+	return NewLogWrapper(InitRouter(), logger)
+}
+
+func InitAuthRouter(logger *log.Logger, username, password string) http.Handler {
+	return NewAuthWrapper(InitRouter(), logger, username, password)
 }
