@@ -66,7 +66,7 @@ func (ifs *ImageFS) Open(name string) (http.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	pic, err := ReadImg(f)
+	pic, err := readImg(f)
 	if err != nil {
 		return nil, err
 	}

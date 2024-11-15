@@ -1,5 +1,8 @@
 package mediahandler
 
-var MediaDir string
-var NoTag bool
-var NoRecursive bool
+// Global flags set in main function.
+var (
+	MediaDir    string
+	NoTag       bool
+	NoRecursive bool
+)

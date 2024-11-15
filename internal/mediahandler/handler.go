@@ -14,7 +14,7 @@ import (
 
 const fileBaseURL = "file:///"
 
-var taggedExt = [...]string{".mp3", ".flac", ".ogg", "mp4"}
+var taggedExt = [...]string{".mp3", ".flac", ".ogg", ".mp4"}
 
 func isTaggedExt(ext string) bool {
 	for _, v := range taggedExt {
@@ -31,13 +31,13 @@ func getTaggedTrack(path string, track *xspf.Track) error {
 		return err
 	}
 	defer f.Close()
-	if err := ReadTag(f, track); err != nil {
+	if err := readTag(f, track); err != nil {
 		return err
 	}
 	return nil
 }
 
-func GetMedia(MediaBaseURL *url.URL, ImageBaseURL *url.URL) (*xspf.PlayList, error) {
+func GetMedia(MediaBaseURL, ImageBaseURL *url.URL) (*xspf.PlayList, error) {
 	playList := &xspf.PlayList{Creator: "xplay", Title: "xplay"}
 	if err := fs.WalkDir(os.DirFS(MediaDir), ".", func(path string, d fs.DirEntry, err error) error {
 		if err != nil || !validateFileType(d) {

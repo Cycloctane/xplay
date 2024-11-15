@@ -15,7 +15,7 @@ func addTag(t *string, m string) {
 	}
 }
 
-func ReadTag(f *os.File, track *xspf.Track) error {
+func readTag(f *os.File, track *xspf.Track) error {
 	metadata, err := tag.ReadFrom(f)
 	if err != nil {
 		return err
@@ -33,7 +33,7 @@ func ReadTag(f *os.File, track *xspf.Track) error {
 	return nil
 }
 
-func ReadImg(f io.ReadSeeker) (*tag.Picture, error) {
+func readImg(f io.ReadSeeker) (*tag.Picture, error) {
 	metadata, err := tag.ReadFrom(f)
 	if err != nil {
 		return nil, err
