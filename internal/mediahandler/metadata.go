@@ -9,6 +9,9 @@ import (
 	"github.com/dhowden/tag"
 )
 
+// Keys: media file extensions. Values: if metadata parsing of this ext is supported or not
+var supportedExt = map[string]bool{".mp3": true, ".flac": true, ".ogg": true, ".mp4": true, ".mkv": false}
+
 func addTag(t *string, m string) {
 	if m != "" {
 		*t = m

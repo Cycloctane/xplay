@@ -7,18 +7,12 @@ import (
 	"path/filepath"
 )
 
-var supportedExt = [...]string{".mp3", ".flac", ".ogg", ".mp4", ".mkv"}
-
-func validateFileType(f fs.DirEntry) bool {
+func isSupportedFile(f fs.DirEntry) bool {
 	if f.IsDir() || f.Name()[0] == '.' {
 		return false
 	}
-	for _, v := range supportedExt {
-		if filepath.Ext(f.Name()) == v {
-			return true
-		}
-	}
-	return false
+	_, exists := supportedExt[filepath.Ext(f.Name())]
+	return exists
 }
 
 type MediaFS struct {
@@ -37,7 +31,7 @@ func (mfs *MediaFS) Open(name string) (http.File, error) {
 	if err != nil {
 		return nil, err
 	}
-	if !validateFileType(fs.FileInfoToDirEntry(info)) {
+	if !isSupportedFile(fs.FileInfoToDirEntry(info)) {
 		return nil, os.ErrNotExist
 	}
 	return f, nil

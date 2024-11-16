@@ -14,17 +14,6 @@ import (
 
 const fileBaseURL = "file:///"
 
-var taggedExt = [...]string{".mp3", ".flac", ".ogg", ".mp4"}
-
-func isTaggedExt(ext string) bool {
-	for _, v := range taggedExt {
-		if ext == v {
-			return true
-		}
-	}
-	return false
-}
-
 func getTaggedTrack(path string, track *xspf.Track) error {
 	f, err := os.Open(path)
 	if err != nil {
@@ -40,7 +29,7 @@ func getTaggedTrack(path string, track *xspf.Track) error {
 func GetMedia(MediaBaseURL, ImageBaseURL *url.URL) (*xspf.PlayList, error) {
 	playList := &xspf.PlayList{Creator: "xplay", Title: "xplay"}
 	if err := fs.WalkDir(os.DirFS(MediaDir), ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil || !validateFileType(d) {
+		if err != nil || !isSupportedFile(d) {
 			return nil
 		}
 		if NoRecursive && filepath.Dir(path) != "." {
@@ -52,7 +41,7 @@ func GetMedia(MediaBaseURL, ImageBaseURL *url.URL) (*xspf.PlayList, error) {
 			Location: location.String(),
 			Title:    strings.TrimSuffix(d.Name(), ext),
 		}
-		if !NoTag && isTaggedExt(ext) {
+		if !NoTag && supportedExt[ext] {
 			mediaFilePath := filepath.Join(MediaDir, path)
 			if err := getTaggedTrack(mediaFilePath, track); err != nil {
 				fmt.Printf("cannot parse %s: %s\n", mediaFilePath, err.Error())
