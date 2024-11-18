@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -16,6 +17,8 @@ const (
 	defaultPort = 8080
 	defaultUser = "xplay"
 )
+
+var version = "dev"
 
 func validateDir(path string) {
 	file, err := os.Stat(path)
@@ -38,7 +41,13 @@ func main() {
 	password := flag.String("password", "", "http basic auth password")
 	certFile := flag.String("cert", "", "cert file path for https support")
 	keyFile := flag.String("key", "", "cert key path for https support")
+	showVersion := flag.Bool("version", false, "print version and exit")
 	flag.Parse()
+
+	if *showVersion {
+		fmt.Println(version)
+		return
+	}
 
 	validateDir(mediahandler.MediaDir)
 	if *output {
@@ -58,12 +67,12 @@ func main() {
 
 	addr := net.JoinHostPort(*listenAddr, strconv.Itoa(*listenPort))
 	if *certFile != "" && *keyFile != "" {
-		logger.Printf("Starting xplay server at https://%s/ ...\n", addr)
+		logger.Printf("Starting xplay server %s at https://%s/ ...\n", version, addr)
 		if err := http.ListenAndServeTLS(addr, *certFile, *keyFile, handler); err != nil {
 			panic(err)
 		}
 	} else {
-		logger.Printf("Starting xplay server at http://%s/ ...\n", addr)
+		logger.Printf("Starting xplay server %s at http://%s/ ...\n", version, addr)
 		if err := http.ListenAndServe(addr, handler); err != nil {
 			panic(err)
 		}
