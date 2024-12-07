@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net"
 	"net/http"
@@ -20,13 +19,13 @@ const (
 
 var version = "dev"
 
-func validateDir(path string) {
+func validateDir(path string, logger *log.Logger) {
 	file, err := os.Stat(path)
 	if err != nil {
-		panic(err)
+		logger.Panicln(err)
 	}
 	if !file.IsDir() {
-		panic("not a directory")
+		logger.Fatalln("Error: Target is not a directory.")
 	}
 }
 
@@ -44,21 +43,22 @@ func main() {
 	showVersion := flag.Bool("version", false, "print version and exit")
 	flag.Parse()
 
+	logger := log.New(os.Stdout, "", 0)
 	if *showVersion {
-		fmt.Println(version)
+		logger.Println(version)
 		return
 	}
 
-	validateDir(mediahandler.MediaDir)
+	validateDir(mediahandler.MediaDir, logger)
 	if *output {
 		if err := mediahandler.WriteToStdout(); err != nil {
-			panic(err)
+			logger.Panicln(err)
 		}
 		return
 	}
 
 	var handler http.Handler
-	logger := log.New(os.Stdout, "", log.Ldate|log.Ltime)
+	logger.SetFlags(log.Ldate | log.Ltime)
 	if *password != "" {
 		handler = router.InitAuthRouter(logger, *username, *password)
 	} else {
@@ -69,12 +69,12 @@ func main() {
 	if *certFile != "" && *keyFile != "" {
 		logger.Printf("Starting xplay server %s at https://%s/ ...\n", version, addr)
 		if err := http.ListenAndServeTLS(addr, *certFile, *keyFile, handler); err != nil {
-			panic(err)
+			logger.Panicln(err)
 		}
 	} else {
 		logger.Printf("Starting xplay server %s at http://%s/ ...\n", version, addr)
 		if err := http.ListenAndServe(addr, handler); err != nil {
-			panic(err)
+			logger.Panicln(err)
 		}
 	}
 }

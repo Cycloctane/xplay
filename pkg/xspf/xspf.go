@@ -13,13 +13,11 @@ const (
 )
 
 type PlayList struct {
-	Title      string `xml:"title,omitempty"`
-	Creator    string `xml:"creator,omitempty"`
-	Date       string `xml:"date,omitempty"`
-	Annotation string `xml:"annotation,omitempty"`
-	TrackList  struct {
-		Tracks []Track `xml:"track"`
-	} `xml:"trackList"`
+	Title      string   `xml:"title,omitempty"`
+	Creator    string   `xml:"creator,omitempty"`
+	Date       string   `xml:"date,omitempty"`
+	Annotation string   `xml:"annotation,omitempty"`
+	Tracks     []*Track `xml:"trackList>track"`
 }
 
 type Track struct {
@@ -30,7 +28,7 @@ type Track struct {
 	TrackNum   string `xml:"trackNum,omitempty"`
 	Duration   string `xml:"duration,omitempty"`
 	ImageExt   string `xml:"-"`
-	ImageURI   string `xml:"image,omitempty"`
+	Image      string `xml:"image,omitempty"`
 	Annotation string `xml:"annotation,omitempty"`
 }
 

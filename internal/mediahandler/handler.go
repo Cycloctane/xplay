@@ -48,10 +48,10 @@ func GetMedia(MediaBaseURL, ImageBaseURL *url.URL) (*xspf.PlayList, error) {
 				return nil
 			}
 			if MediaBaseURL.Scheme != "file" && track.ImageExt != "" {
-				track.ImageURI = ImageBaseURL.JoinPath(path).String()
+				track.Image = ImageBaseURL.JoinPath(path).String()
 			}
 		}
-		playList.TrackList.Tracks = append(playList.TrackList.Tracks, *track)
+		playList.Tracks = append(playList.Tracks, track)
 		return nil
 	}); err != nil {
 		return nil, err

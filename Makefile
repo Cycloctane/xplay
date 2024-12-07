@@ -7,9 +7,12 @@ LINUX_STATIC=xplay_$(VERSION)_linux_static_x64
 LD_FLAGS=-s -w -X main.version=$(VERSION)
 OUTPUT_DIR=build
 
-.PHONY: all windows linux staticlinux
+.PHONY: all test windows linux staticlinux
 
 default: all
+
+test:
+	go test --cover -v ./pkg/xspf/
 
 windows:
 	GOOS=windows GOARCH=amd64 go build -v -o $(OUTPUT_DIR)/$(WINDOWS) -ldflags="$(LD_FLAGS)" ./cmd/xplay
