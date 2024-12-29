@@ -13,13 +13,11 @@ const (
 	xspfPath      = "/play.xspf"
 	mediaBasePath = "/media/"
 	imageBasePath = "/img/"
-	serverHeader  = "xplay"
 )
 
 func httpHandler(w http.ResponseWriter, _ *http.Request) {
 	mediaBaseUrl, _ := url.Parse(mediaBasePath)
 	imageBaseUrl, _ := url.Parse(imageBasePath)
-	w.Header().Set("Server", serverHeader)
 	playList, err := mediahandler.GetMedia(mediaBaseUrl, imageBaseUrl)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)

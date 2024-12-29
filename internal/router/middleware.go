@@ -7,6 +7,8 @@ import (
 	"net/http"
 )
 
+const serverHeader = "xplay"
+
 type wrappedResponseWriter struct {
 	http.ResponseWriter
 	statusCode int
@@ -14,6 +16,7 @@ type wrappedResponseWriter struct {
 }
 
 func (wr *wrappedResponseWriter) WriteHeader(statusCode int) {
+	wr.Header().Set("Server", serverHeader)
 	wr.statusCode = statusCode
 	wr.ResponseWriter.WriteHeader(statusCode)
 }
