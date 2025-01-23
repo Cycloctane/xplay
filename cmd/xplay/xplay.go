@@ -64,12 +64,19 @@ func main() {
 		return
 	}
 
+	var scheme string
+	if *certFile != "" && *keyFile != "" {
+		scheme = "https"
+	} else {
+		scheme = "http"
+	}
+
 	var handler http.Handler
 	logger.SetFlags(log.Ldate | log.Ltime)
 	if *allowedHosts != "" {
-		handler = router.NewTrustedHostWrapper(router.InitRouter(logger), *allowedHosts)
+		handler = router.NewTrustedHostWrapper(router.InitRouter(scheme, logger), *allowedHosts)
 	} else {
-		handler = router.InitRouter(logger)
+		handler = router.InitRouter(scheme, logger)
 	}
 
 	var wrappedHandler http.Handler
@@ -80,15 +87,12 @@ func main() {
 	}
 
 	addr := net.JoinHostPort(*listenAddr, strconv.Itoa(*listenPort))
-	if *certFile != "" && *keyFile != "" {
-		logger.Printf("Starting xplay server %s at https://%s/ ...\n", version, addr)
+	logger.Printf("Starting xplay server %s at %s://%s/ ...\n", version, scheme, addr)
+	if scheme == "https" {
 		if err := http.ListenAndServeTLS(addr, *certFile, *keyFile, wrappedHandler); err != nil {
 			logger.Panicln(err)
 		}
-	} else {
-		logger.Printf("Starting xplay server %s at http://%s/ ...\n", version, addr)
-		if err := http.ListenAndServe(addr, wrappedHandler); err != nil {
-			logger.Panicln(err)
-		}
+	} else if err := http.ListenAndServe(addr, wrappedHandler); err != nil {
+		logger.Panicln(err)
 	}
 }

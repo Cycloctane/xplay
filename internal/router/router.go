@@ -15,11 +15,12 @@ const (
 	imageBasePath = "/img/"
 )
 
-func httpHandlerFactory(logger *log.Logger) http.HandlerFunc {
-	return func(w http.ResponseWriter, _ *http.Request) {
-		mediaBaseUrl, _ := url.Parse(mediaBasePath)
-		imageBaseUrl, _ := url.Parse(imageBasePath)
-		playList, err := mediahandler.GetMedia(mediaBaseUrl, imageBaseUrl)
+func httpHandlerFactory(scheme string, logger *log.Logger) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		baseUrl := &url.URL{Scheme: scheme, Host: r.Host}
+		playList, err := mediahandler.GetMedia(
+			baseUrl.JoinPath(mediaBasePath), baseUrl.JoinPath(imageBasePath),
+		)
 		if err != nil {
 			w.WriteHeader(http.StatusInternalServerError)
 			logger.Printf("[file] Error parsing media file: %v\n", err)
@@ -32,15 +33,20 @@ func httpHandlerFactory(logger *log.Logger) http.HandlerFunc {
 			return
 		}
 		w.Header().Set("Content-Type", xspf.ContentType)
+
+		// Location links in xspf are generated from request's Host Header.
+		// To mitigate potential cache poisoning, make sure untrusted xspf responses are never cached.
+		w.Header().Set("Cache-Control", "no-cache, no-store, max-age=0")
+
 		w.WriteHeader(http.StatusOK)
 		buffered.WriteTo(w)
 	}
 }
 
-func InitRouter(logger *log.Logger) *http.ServeMux {
+func InitRouter(scheme string, logger *log.Logger) *http.ServeMux {
 	httpFS := &mediahandler.MediaFS{Fs: http.Dir(mediahandler.MediaDir)}
 	router := http.NewServeMux()
-	httpHandler := httpHandlerFactory(logger)
+	httpHandler := httpHandlerFactory(scheme, logger)
 	router.HandleFunc(xspfPath, httpHandler)
 	router.Handle(mediaBasePath, http.StripPrefix(mediaBasePath, http.FileServer(httpFS)))
 	router.Handle(imageBasePath, http.StripPrefix(imageBasePath, http.FileServer(&mediahandler.ImageFS{Mfs: httpFS})))
