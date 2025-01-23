@@ -2,7 +2,6 @@ package mediahandler
 
 import (
 	"bufio"
-	"fmt"
 	"io/fs"
 	"net/url"
 	"os"
@@ -29,10 +28,10 @@ func getTaggedTrack(path string, track *xspf.Track) error {
 func GetMedia(MediaBaseURL, ImageBaseURL *url.URL) (*xspf.PlayList, error) {
 	playList := &xspf.PlayList{Creator: "xplay", Title: "xplay"}
 	if err := fs.WalkDir(os.DirFS(MediaDir), ".", func(path string, d fs.DirEntry, err error) error {
-		if err != nil || !isSupportedFile(d) {
-			return nil
+		if err != nil {
+			return err
 		}
-		if NoRecursive && filepath.Dir(path) != "." {
+		if !isSupportedFile(d) || (NoRecursive && filepath.Dir(path) != ".") {
 			return nil
 		}
 		location := MediaBaseURL.JoinPath(path)
@@ -44,8 +43,7 @@ func GetMedia(MediaBaseURL, ImageBaseURL *url.URL) (*xspf.PlayList, error) {
 		if !NoTag && supportedExt[ext] {
 			mediaFilePath := filepath.Join(MediaDir, path)
 			if err := getTaggedTrack(mediaFilePath, track); err != nil {
-				fmt.Printf("cannot parse %s: %s\n", mediaFilePath, err.Error())
-				return nil
+				return err
 			}
 			if MediaBaseURL.Scheme != "file" && track.ImageExt != "" {
 				track.Image = ImageBaseURL.JoinPath(path).String()

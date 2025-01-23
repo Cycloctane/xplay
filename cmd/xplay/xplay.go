@@ -60,9 +60,9 @@ func main() {
 	var handler http.Handler
 	logger.SetFlags(log.Ldate | log.Ltime)
 	if *password != "" {
-		handler = router.InitAuthRouter(logger, *username, *password)
+		handler = router.NewAuthWrapper(router.InitRouter(logger), logger, *username, *password)
 	} else {
-		handler = router.InitLogRouter(logger)
+		handler = router.NewLogWrapper(router.InitRouter(logger), logger)
 	}
 
 	addr := net.JoinHostPort(*listenAddr, strconv.Itoa(*listenPort))

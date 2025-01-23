@@ -49,10 +49,7 @@ func Generate(w io.Writer, list *PlayList) error {
 	if _, err := w.Write([]byte(xml.Header)); err != nil {
 		return err
 	}
-	if err := EncodeXspf(w, list); err != nil {
-		return err
-	}
-	return nil
+	return EncodeXspf(w, list)
 }
 
 func BufferedGenerate(list *PlayList) (*bytes.Buffer, error) {
