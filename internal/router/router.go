@@ -17,6 +17,10 @@ const (
 
 func httpHandlerFactory(scheme string, logger *log.Logger) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != http.MethodGet {
+			w.WriteHeader(http.StatusMethodNotAllowed)
+			return
+		}
 		baseUrl := &url.URL{Scheme: scheme, Host: r.Host}
 		playList, err := mediahandler.GetMedia(
 			baseUrl.JoinPath(mediaBasePath), baseUrl.JoinPath(imageBasePath),
