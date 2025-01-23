@@ -24,8 +24,6 @@ var (
 	output       = flag.Bool("w", false, "write xspf to stdout and exit")
 	listenPort   = flag.Int("p", defaultPort, "http server bind port")
 	listenAddr   = flag.String("b", "0.0.0.0", "http server bind address")
-	username     = flag.String("username", defaultUser, "http basic auth username")
-	password     = flag.String("password", "", "http basic auth password")
 	certFile     = flag.String("ssl-cert", "", "cert file path for https support")
 	keyFile      = flag.String("ssl-key", "", "cert key path for https support")
 	allowedHosts = flag.String("allowed-hosts", "", "comma separated server hostnames for Host header validation")
@@ -74,25 +72,20 @@ func main() {
 	var handler http.Handler
 	logger.SetFlags(log.Ldate | log.Ltime)
 	if *allowedHosts != "" {
-		handler = router.NewTrustedHostWrapper(router.InitRouter(scheme, logger), *allowedHosts)
+		handler = router.NewTrustedHostWrapper(
+			router.NewLogWrapper(router.InitRouter(scheme, logger), logger), *allowedHosts,
+		)
 	} else {
-		handler = router.InitRouter(scheme, logger)
-	}
-
-	var wrappedHandler http.Handler
-	if *password != "" {
-		wrappedHandler = router.NewAuthWrapper(handler, logger, *username, *password)
-	} else {
-		wrappedHandler = router.NewLogWrapper(handler, logger)
+		handler = router.NewLogWrapper(router.InitRouter(scheme, logger), logger)
 	}
 
 	addr := net.JoinHostPort(*listenAddr, strconv.Itoa(*listenPort))
 	logger.Printf("Starting xplay server %s at %s://%s/ ...\n", version, scheme, addr)
 	if scheme == "https" {
-		if err := http.ListenAndServeTLS(addr, *certFile, *keyFile, wrappedHandler); err != nil {
+		if err := http.ListenAndServeTLS(addr, *certFile, *keyFile, handler); err != nil {
 			logger.Panicln(err)
 		}
-	} else if err := http.ListenAndServe(addr, wrappedHandler); err != nil {
+	} else if err := http.ListenAndServe(addr, handler); err != nil {
 		logger.Panicln(err)
 	}
 }
