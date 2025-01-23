@@ -20,14 +20,15 @@ const (
 var version = "dev"
 
 var (
-	showVersion = flag.Bool("version", false, "print version and exit")
-	output      = flag.Bool("w", false, "write xspf to stdout and exit")
-	listenPort  = flag.Int("p", defaultPort, "http server bind port")
-	listenAddr  = flag.String("b", "0.0.0.0", "http server bind address")
-	username    = flag.String("username", defaultUser, "http basic auth username")
-	password    = flag.String("password", "", "http basic auth password")
-	certFile    = flag.String("ssl-cert", "", "cert file path for https support")
-	keyFile     = flag.String("ssl-key", "", "cert key path for https support")
+	showVersion  = flag.Bool("version", false, "print version and exit")
+	output       = flag.Bool("w", false, "write xspf to stdout and exit")
+	listenPort   = flag.Int("p", defaultPort, "http server bind port")
+	listenAddr   = flag.String("b", "0.0.0.0", "http server bind address")
+	username     = flag.String("username", defaultUser, "http basic auth username")
+	password     = flag.String("password", "", "http basic auth password")
+	certFile     = flag.String("ssl-cert", "", "cert file path for https support")
+	keyFile      = flag.String("ssl-key", "", "cert key path for https support")
+	allowedHosts = flag.String("allowed-hosts", "", "comma separated server hostnames for Host header validation")
 )
 
 func init() {
@@ -65,21 +66,28 @@ func main() {
 
 	var handler http.Handler
 	logger.SetFlags(log.Ldate | log.Ltime)
-	if *password != "" {
-		handler = router.NewAuthWrapper(router.InitRouter(logger), logger, *username, *password)
+	if *allowedHosts != "" {
+		handler = router.NewTrustedHostWrapper(router.InitRouter(logger), *allowedHosts)
 	} else {
-		handler = router.NewLogWrapper(router.InitRouter(logger), logger)
+		handler = router.InitRouter(logger)
+	}
+
+	var wrappedHandler http.Handler
+	if *password != "" {
+		wrappedHandler = router.NewAuthWrapper(handler, logger, *username, *password)
+	} else {
+		wrappedHandler = router.NewLogWrapper(handler, logger)
 	}
 
 	addr := net.JoinHostPort(*listenAddr, strconv.Itoa(*listenPort))
 	if *certFile != "" && *keyFile != "" {
 		logger.Printf("Starting xplay server %s at https://%s/ ...\n", version, addr)
-		if err := http.ListenAndServeTLS(addr, *certFile, *keyFile, handler); err != nil {
+		if err := http.ListenAndServeTLS(addr, *certFile, *keyFile, wrappedHandler); err != nil {
 			logger.Panicln(err)
 		}
 	} else {
 		logger.Printf("Starting xplay server %s at http://%s/ ...\n", version, addr)
-		if err := http.ListenAndServe(addr, handler); err != nil {
+		if err := http.ListenAndServe(addr, wrappedHandler); err != nil {
 			logger.Panicln(err)
 		}
 	}

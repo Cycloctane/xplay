@@ -4,7 +4,9 @@ import (
 	"crypto/sha256"
 	"crypto/subtle"
 	"log"
+	"net"
 	"net/http"
+	"strings"
 )
 
 const serverHeader = "xplay"
@@ -82,4 +84,33 @@ func NewAuthWrapper(handler http.Handler, logger *log.Logger, username, password
 	}
 	newHandler.passwordSha224 = sha256.Sum224([]byte(password))
 	return newHandler
+}
+
+type TrustedHostWrapper struct {
+	http.Handler
+	trustedHosts []string
+}
+
+func (th *TrustedHostWrapper) verifyHost(host string) bool {
+	for _, v := range th.trustedHosts {
+		if host == v {
+			return true
+		}
+		if h, _, _ := net.SplitHostPort(host); h == v {
+			return true
+		}
+	}
+	return false
+}
+
+func (th *TrustedHostWrapper) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	if !th.verifyHost(r.Host) {
+		http.Error(w, "403 Forbidden", http.StatusForbidden)
+		return
+	}
+	th.Handler.ServeHTTP(w, r)
+}
+
+func NewTrustedHostWrapper(handler http.Handler, trustedHosts string) *TrustedHostWrapper {
+	return &TrustedHostWrapper{Handler: handler, trustedHosts: strings.Split(trustedHosts, ",")}
 }
