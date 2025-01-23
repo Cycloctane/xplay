@@ -38,7 +38,7 @@ To secure the media server, activate https with `--ssl-cert` `--ssl-key` and set
 
 ## Client
 
-Media players with http and xspf support (like VLC) can be used as clients.
+Media players with http and xspf support (like VLC) can be used as clients. This branch currently only supports VLC. For other players, try [xplay-compatible](https://github.com/Cycloctane/xplay/tree/compatible).
 
 ```bash
 vlc http://$ip:$port/play.xspf
