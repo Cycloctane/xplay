@@ -19,6 +19,23 @@ const (
 
 var version = "dev"
 
+var (
+	showVersion = flag.Bool("version", false, "print version and exit")
+	output      = flag.Bool("w", false, "write xspf to stdout and exit")
+	listenPort  = flag.Int("p", defaultPort, "http server bind port")
+	listenAddr  = flag.String("b", "0.0.0.0", "http server bind address")
+	username    = flag.String("username", defaultUser, "http basic auth username")
+	password    = flag.String("password", "", "http basic auth password")
+	certFile    = flag.String("ssl-cert", "", "cert file path for https support")
+	keyFile     = flag.String("ssl-key", "", "cert key path for https support")
+)
+
+func init() {
+	flag.StringVar(&mediahandler.MediaDir, "d", ".", "served directory")
+	flag.BoolVar(&mediahandler.NoTag, "no-tag", false, "do not read media metadata")
+	flag.BoolVar(&mediahandler.NoRecursive, "no-recursive", false, "do not read directory recursively")
+}
+
 func validateDir(path string, logger *log.Logger) {
 	file, err := os.Stat(path)
 	if err != nil {
@@ -30,17 +47,6 @@ func validateDir(path string, logger *log.Logger) {
 }
 
 func main() {
-	flag.StringVar(&mediahandler.MediaDir, "d", ".", "served directory")
-	flag.BoolVar(&mediahandler.NoTag, "no-tag", false, "do not read media metadata")
-	flag.BoolVar(&mediahandler.NoRecursive, "no-recursive", false, "read directory recursively")
-	output := flag.Bool("w", false, "write xspf to stdout and exit")
-	listenAddr := flag.String("b", "0.0.0.0", "http server bind address")
-	listenPort := flag.Int("p", defaultPort, "http server bind port")
-	username := flag.String("username", defaultUser, "http basic auth username")
-	password := flag.String("password", "", "http basic auth password")
-	certFile := flag.String("cert", "", "cert file path for https support")
-	keyFile := flag.String("key", "", "cert key path for https support")
-	showVersion := flag.Bool("version", false, "print version and exit")
 	flag.Parse()
 
 	logger := log.New(os.Stdout, "", 0)

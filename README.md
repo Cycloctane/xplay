@@ -28,12 +28,12 @@ Use `-w` to generate and save xspf to file and exit. `-b` and `-p` options will 
 
 Metadata parsing can become slow when handling a large number of multimedia files. Use `--no-tag` option to disable metadata/tag parsing if you do not need metadata in xspf playlists.
 
-To secure the media server, activate https with `--cert` `--key` and set up http basic authentication with `--password`. Default username "xplay" can be changed via `--username`:
+To secure the media server, activate https with `--ssl-cert` `--ssl-key` and set up http basic authentication with `--password`. Default username "xplay" can be changed via `--username`:
 
 ```bash
 ./xplay -b $bind_ipaddr -p $bind_port -d ./music\
     --username $username --password $password\
-    --cert $cert_path --key $certkey_path
+    --ssl-cert $cert_path --ssl-key $certkey_path
 ```
 
 ## Client
