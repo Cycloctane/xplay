@@ -41,10 +41,26 @@ func newTestPlaylist() *PlayList {
 func TestEncodeXspf(t *testing.T) {
 	buf := bytes.NewBuffer([]byte{})
 	if err := EncodeXspf(buf, newTestPlaylist()); err != nil {
-		t.Fatal(err)
+		t.Error(err)
 	}
 	if strings.Trim(buf.String(), "\n") != strings.Trim(testXml, "\n") {
 		t.Errorf("Encoded playlist does not match expected:\n%s", buf.String())
+	}
+}
+
+func TestDecodeXspf(t *testing.T) {
+	list, err := DecodeXspf(strings.NewReader(testXml))
+	if err != nil {
+		t.Error(err)
+	}
+	if list.Title != "Playlist" {
+		t.Errorf("Decoded playlist title does not match expected: %s", list.Title)
+	}
+	if len(list.Tracks) != 2 {
+		t.Errorf("Expected 2 tracks in playlist, got %d", len(list.Tracks))
+	}
+	if list.Tracks[0].Location != "1.mp3" {
+		t.Errorf("Decoded playlist track 1 location does not match expected: %s", list.Tracks[0].Location)
 	}
 }
 
