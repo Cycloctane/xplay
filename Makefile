@@ -12,7 +12,7 @@ OUTPUT_DIR=build
 default: all
 
 test:
-	go test --cover -v ./pkg/xspf/
+	go test --cover -v ./pkg/xspf/ ./internal/router/
 
 windows:
 	GOOS=windows GOARCH=amd64 go build -v -o $(OUTPUT_DIR)/$(WINDOWS) -ldflags="$(LD_FLAGS)" ./cmd/xplay
