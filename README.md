@@ -20,25 +20,37 @@ Start http media server with `/play.xspf` as index:
 ./xplay -b $bind_ipaddr -p $bind_port -d ./music
 ```
 
-Use `-w` to generate and save xspf to file and exit. `-b` and `-p` options will be ignored:
+Use `-w` to generate and save xspf to file and exit. Options other than `-d` will be ignored:
 
 ```bash
 ./xplay -d . -w > playlist.xspf
 ```
 
-Metadata parsing can become slow when handling a large number of multimedia files. Use `--no-tag` option to disable metadata/tag parsing if you do not need metadata in xspf playlists.
+Metadata parsing can become slow when handling a large number of multimedia files.
+Use `--no-tag` option to disable metadata/tag parsing if you do not need metadata in xspf playlists.
 
-To secure the media server, activate https with `--ssl-cert` `--ssl-key` and set up http basic authentication with `--password`. Default username "xplay" can be changed via `--username`:
+To secure the media server, add host header validation with `--server-hostname`, activate https with `--ssl-cert` `--ssl-key` and set up http basic authentication with `--password`.
+Default username "xplay" can be changed via `--username`:
 
 ```bash
-./xplay -b $bind_ipaddr -p $bind_port -d ./music\
+./xplay -b 0.0.0.0 -p 8443 -d .\
+    --ssl-cert example.com.crt --ssl-key $certkey_path\
     --username $username --password $password\
-    --ssl-cert $cert_path --ssl-key $certkey_path
+    --server-hostname example.com,127.0.0.1
+```
+
+### Compatibility mode
+
+By default xplay uses relative urls in xspf playlists to better support basic auth and reverse proxies.
+If media players have trouble parsing the links, you can try setting the `--absolute-links` option.
+
+```bash
+./xplay -b 0.0.0.0 -p 8443 -d . --absolute-links
 ```
 
 ## Client
 
-Media players with http and xspf support (like VLC) can be used as clients. This branch currently only supports VLC. For other players, try [xplay-compatible](https://github.com/Cycloctane/xplay/tree/compatible).
+Media players with http and xspf support (like VLC) can be used as clients. Also tested with potplayer, Clementine, audacious... (with `--absolute-links` option)
 
 ```bash
 vlc http://$ip:$port/play.xspf
