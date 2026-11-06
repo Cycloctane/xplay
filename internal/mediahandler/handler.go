@@ -36,10 +36,7 @@ func GetMedia(mediaDir string, MediaBaseURL, ImageBaseURL *url.URL) (*xspf.PlayL
 		}
 		location := MediaBaseURL.JoinPath(path)
 		ext := filepath.Ext(d.Name())
-		track := &xspf.Track{
-			Location: location.String(),
-			Title:    strings.TrimSuffix(d.Name(), ext),
-		}
+		track := &xspf.Track{Location: location.String()}
 		if !NoTag && supportedExt[ext] {
 			mediaFilePath := filepath.Join(mediaDir, path)
 			if err := getTaggedTrack(mediaFilePath, track); err != nil {
@@ -48,6 +45,9 @@ func GetMedia(mediaDir string, MediaBaseURL, ImageBaseURL *url.URL) (*xspf.PlayL
 			if MediaBaseURL.Scheme != "file" && track.ImageExt != "" {
 				track.Image = ImageBaseURL.JoinPath(path).String()
 			}
+		}
+		if track.Title == "" {
+			track.Title = strings.TrimSuffix(d.Name(), ext)
 		}
 		playList.Tracks = append(playList.Tracks, track)
 		return nil

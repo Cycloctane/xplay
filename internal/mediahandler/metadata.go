@@ -20,7 +20,9 @@ func addTag(t *string, m string) {
 
 func readTag(f *os.File, track *xspf.Track) error {
 	metadata, err := tag.ReadFrom(f)
-	if err != nil {
+	if err == tag.ErrNoTagsFound {
+		return nil
+	} else if err != nil {
 		return err
 	}
 	addTag(&track.Title, metadata.Title())
