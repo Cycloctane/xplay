@@ -71,7 +71,7 @@ func (aw *BasicAuth) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		unauthorizedHandler(rw)
 	} else if !aw.verify(user, password) {
 		unauthorizedHandler(rw)
-		aw.logger.Printf("[auth] %s - Authorization Failed %s:%s", r.RemoteAddr, user, password)
+		aw.logger.Printf("[auth] %s - Authorization Failed %s:******", r.RemoteAddr, user)
 	} else {
 		aw.Handler.ServeHTTP(rw, r)
 	}
