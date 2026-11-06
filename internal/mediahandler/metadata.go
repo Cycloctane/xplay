@@ -10,7 +10,7 @@ import (
 )
 
 // Keys: media file extensions. Values: if metadata parsing of this ext is supported or not
-var supportedExt = map[string]bool{".mp3": true, ".flac": true, ".ogg": true, ".mp4": true, ".mkv": false}
+var supportedExt = map[string]bool{".mp3": true, ".flac": true, ".ogg": true, ".wav": false, ".mp4": true, ".mkv": false}
 
 func addTag(t *string, m string) {
 	if m != "" {
