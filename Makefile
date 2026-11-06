@@ -14,7 +14,7 @@ xplay_$(VERSION)_windows_x64.exe:
 	GOOS=windows GOARCH=amd64 $(BUILD) -o $(OUTPUT_DIR)/$@ ./cmd/xplay
 
 xplay_$(VERSION)_linux_x64:
-	CGO_ENABLED=0 GOOS=linux $(BUILD) -o $(OUTPUT_DIR)/$@ ./cmd/xplay
+	CGO_ENABLED=0 GOOS=linux GOARCH=amd64 $(BUILD) -o $(OUTPUT_DIR)/$@ ./cmd/xplay
 
 xplay_$(VERSION)_linux_arm64:
 	CGO_ENABLED=0 GOOS=linux GOARCH=arm64 $(BUILD) -o $(OUTPUT_DIR)/$@ ./cmd/xplay
