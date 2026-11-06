@@ -5,24 +5,20 @@ on:
     tags: ["v*"]
 
 jobs:
-
   release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
     steps:
-    - name: Checkout project
-      uses: actions/checkout@v4
-    - name: Set up Go
-      uses: actions/setup-go@v4
+    - uses: actions/checkout@v7
+    - uses: actions/setup-go@v7
       with:
-        go-version: '1.24'
+        go-version-file: 'go.mod'
     - name: Run test
       run: make test
     - name: Build
       run: make
-    - name: Create Release
-      uses: ncipollo/release-action@v1
+    - uses: ncipollo/release-action@v1
       with:
         name: ${{ github.ref_name }}
         draft: true
